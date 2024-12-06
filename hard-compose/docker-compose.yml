@@ -1,0 +1,124 @@
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    ports:
+      - "9870:9870"
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    networks:
+      - hadoop_network
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    networks:
+      - hadoop_network
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    container_name: resourcemanager
+    environment:
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+    ports:
+      - "8088:8088"
+    networks:
+      - hadoop_network
+
+  nodemanager:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager
+    environment:
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+    networks:
+      - hadoop_network
+
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    container_name: historyserver
+    ports:
+      - "8188:8188"
+    environment:
+      - HDFS_CONF_dfs_namenode_name_dir=/hadoop/history
+    networks:
+      - hadoop_network
+
+  zookeeper:
+    image: zookeeper:3.7
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - hadoop_network
+
+  hbase:
+    image: harisekhon/hbase
+    container_name: hbase
+    ports:
+      - "16010:16010"
+      - "16020:16020"
+    environment:
+      - ZOOKEEPER_QUORUM=zookeeper
+    networks:
+      - hadoop_network
+
+  spark:
+    image: bitnami/spark:3
+    container_name: spark
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    environment:
+      - SPARK_MODE=master
+    volumes:
+      - spark_data:/spark/data
+    networks:
+      - hadoop_network
+
+  metastore:
+    image: mysql:8.0
+    container_name: metastore
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hive
+      MYSQL_USER: hive
+      MYSQL_PASSWORD: hive
+    ports:
+      - "3306:3306"
+    networks:
+      - hadoop_network
+    volumes:
+      - metastore_data:/var/lib/mysql
+
+  hive:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive
+    ports:
+      - "10000:10000"
+    environment:
+      - HIVE_METASTORE_HOST=metastore
+      - HIVE_METASTORE_PORT=3306
+      - HIVE_METASTORE_USER=hive
+      - HIVE_METASTORE_PASSWORD=hive
+      - HIVE_METASTORE_DATABASE=hive
+    depends_on:
+      - namenode
+      - datanode
+      - metastore
+    networks:
+      - hadoop_network
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
+  spark_data:
+  metastore_data:
+
+networks:
+  hadoop_network:

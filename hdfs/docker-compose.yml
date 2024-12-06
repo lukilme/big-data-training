@@ -1,0 +1,12 @@
+services:
+  hadoop:
+    image: apache/hadoop:3.4
+    container_name: hadoop-container
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true
+    ports:
+      - "50070:50070"
+      - "8088:8088"
+    volumes:
+      - ./shared:/shared 
