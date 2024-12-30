@@ -1,0 +1,1 @@
+docker run -v ./shared:/shared -it --name bigdata-env -p 3306:3306 -p 8080:8080 -p 50070:50070 -p 10000:10000 hadoop-hive-sqoop

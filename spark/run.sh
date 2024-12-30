@@ -1,0 +1,1 @@
+docker run -v ./shared:/shared -it -p 8088:8088 -p 9870:9870 -p 50070:50070 -p 10000:10000 -p 16010:16010 -p 8080:8080 -p 4040:4040 -p 9000:9000 -p 7077:7077 hadoop-hive-hbase-spark

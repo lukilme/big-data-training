@@ -45,11 +45,11 @@ RUN wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz 
 ENV SPARK_HOME=/usr/local/spark
 ENV PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 
-COPY core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
-COPY hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
-COPY hive-site.xml $HIVE_HOME/conf/hive-site.xml
-COPY hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
+COPY shared/config/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
+COPY shared/config/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+COPY shared/config/hive-site.xml $HIVE_HOME/conf/hive-site.xml
+COPY shared/config/hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
 
-EXPOSE 8088 50070 10000 16010 4040 9000
+EXPOSE 8088 50070 10000 16010 4040 9000 4040 7077 8080
 
 CMD ["/bin/bash"]
