@@ -1,0 +1,12 @@
+<configuration>
+  <property>
+    <name>hive.metastore.uris</name>
+    <value>thrift://localhost:9083</value>
+    <description>Thrift URI for the remote metastore. Set this to enable remote metastore mode.</description>
+  </property>
+  <property>
+    <name>hive.hbase.table.default.storage.type</name>
+    <value>hbase</value>
+</property>
+
+</configuration>

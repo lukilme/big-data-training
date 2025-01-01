@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     net-tools \
     vim \
+    openssh-client \
+    openssh-server \
     && apt-get clean
 
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
@@ -21,8 +23,8 @@ RUN wget https://downloads.apache.org/hadoop/common/hadoop-$HADOOP_VERSION/hadoo
 ENV HADOOP_HOME=/usr/local/hadoop
 ENV PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
 
-ENV HIVE_VERSION=3.1.1
-RUN wget https://archive.apache.org/dist/hive/hive-3.1.1/apache-hive-3.1.1-bin.tar.gz \
+ENV HIVE_VERSION=4.0.1
+RUN wget https://archive.apache.org/dist/hive/hive-4.0.1/apache-hive-4.0.1-bin.tar.gz \
     && tar -xzf apache-hive-$HIVE_VERSION-bin.tar.gz -C /usr/local/ \
     && rm apache-hive-$HIVE_VERSION-bin.tar.gz \
     && mv /usr/local/apache-hive-$HIVE_VERSION-bin /usr/local/hive
@@ -45,11 +47,23 @@ RUN wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz 
 ENV SPARK_HOME=/usr/local/spark
 ENV PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 
+ENV ZOOKEEPER_VERSION=3.8.2
+RUN wget https://dlcdn.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/apache-zookeeper-$ZOOKEEPER_VERSION-bin.tar.gz \
+    && tar -xzf apache-zookeeper-$ZOOKEEPER_VERSION-bin.tar.gz -C /usr/local/ \
+    && rm apache-zookeeper-$ZOOKEEPER_VERSION-bin.tar.gz \
+    && mv /usr/local/apache-zookeeper-$ZOOKEEPER_VERSION-bin /usr/local/zookeeper
+ENV ZOOKEEPER_HOME=/usr/local/zookeeper
+ENV PATH=$ZOOKEEPER_HOME/bin:$PATH
+RUN mkdir -p $ZOOKEEPER_HOME/data \
+    && echo "tickTime=2000" > $ZOOKEEPER_HOME/conf/zoo.cfg \
+    && echo "dataDir=$ZOOKEEPER_HOME/data" >> $ZOOKEEPER_HOME/conf/zoo.cfg \
+    && echo "clientPort=2181" >> $ZOOKEEPER_HOME/conf/zoo.cfg
+
 COPY shared/config/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
 COPY shared/config/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 COPY shared/config/hive-site.xml $HIVE_HOME/conf/hive-site.xml
 COPY shared/config/hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
 
-EXPOSE 8088 50070 10000 16010 4040 9000 4040 7077 8080
+EXPOSE 8088 50070 10000 16010 4040 9000 4040 7077 8080 2181
 
 CMD ["/bin/bash"]

@@ -7,4 +7,8 @@
         <name>hbase.zookeeper.property.dataDir</name>
         <value>/usr/local/hbase/zookeeper</value>
     </property>
+    <property>
+        <name>hbase.zookeeper.quorum</name>
+        <value>localhost</value>
+    </property>
 </configuration>
