@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property>
+    <name>sqoop.metastore.client.autoconnect.url</name>
+    <value>jdbc:mysql://localhost:3306/sqoop</value>
+  </property>
+  <property>
+    <name>sqoop.metastore.client.enable.autoconnect</name>
+    <value>true</value>
+  </property>
+</configuration>
