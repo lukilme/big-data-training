@@ -7,3 +7,6 @@
 *.hive.ipynb linguist-detectable=true
 *.hive.ipynb linguist-language=hiveql
 *.hive.ipynb text
+*.hql.sql linguist-detectable=true
+*.hql.sql linguist-language=hiveql
+*.hql.sql text
