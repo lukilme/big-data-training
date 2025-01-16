@@ -37,6 +37,8 @@ export HDFS_DATANODE_USER=hadoop
 export HDFS_SECONDARYNAMENODE_USER=hadoop
 export YARN_NODEMANAGER_USER=hadoop
 export YARN_RESOURCEMANAGER_USER=hadoop
+export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:/tmp/sqoop-classes
+
 EOL
 
 apt update 
@@ -60,3 +62,7 @@ mkdir -p $HADOOP_HOME/tmp
 chown -R hadoop:hadoop $HADOOP_HOME/tmp
 
 su - hadoop -c "ssh localhost exit"
+
+wget https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.36/slf4j-simple-1.7.36.jar -P $HADOOP_HOME/share/hadoop/common/lib/
+wget https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar -P $SQOOP_HOME/lib/
+wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.49/mysql-connector-java-5.1.49.jar -P $SQOOP_HOME/lib/

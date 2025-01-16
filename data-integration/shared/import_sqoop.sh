@@ -1,9 +1,9 @@
 /opt/sqoop/bin/sqoop import \
   --connect jdbc:mysql://localhost:3306/employees \
-  --username retail_dba \
-  --password cloudera \
+  --username hive \
+  --password hive \
   --table departments \
-  --target-dir /user/cloudera/employees_db/data \
+  --target-dir /user/employees/data/departments \
   --split-by dept_no \
   --class-name DepartmentsClass \
-  --bindir /tmp/sqoop-classes
+  --bindir /tmp/sqoop-classes 

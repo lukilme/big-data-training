@@ -47,7 +47,7 @@ RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
     chmod 600 ~/.ssh/authorized_keys
 
 RUN mysqld_safe & \
-    sleep 10 && \
+    sleep 15 && \
     mysql -e "CREATE DATABASE hive;" && \
     mysql -e "CREATE USER 'hive'@'%' IDENTIFIED BY 'hive';" && \
     mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'hive'@'%';" && \

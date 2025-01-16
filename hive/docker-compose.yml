@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  hbase:
+    image: harisekhon/hbase:latest
+    container_name: hbase-standalone
+    ports:
+      - "16000:16000"
+      - "16010:16010"
+      - "16201:16201"
+      - "16020:16020"
+      - "16030:16030"
+      - "9090:9090"
+      - "2181:2181"
+    environment:
+      - HBASE_MANAGES_ZK=true
+    volumes:
+      - hbase_data:/data
+      - hbase_logs:/logs
+    restart: unless-stopped
+
+  hive-metastore:
+    image: apache/hive:4.0.1
+    container_name: hive-metastore
+    ports:
+      - "9083:9083"  # Porta para o Metastore
+    environment:
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+      - HIVE_VERSION=4.0.1
+    depends_on:
+      - hbase
+    restart: unless-stopped
+
+  hive-server2:
+    image: apache/hive:4.0.1
+    container_name: hive-server2
+    ports:
+      - "10000:10000" 
+      - "10002:10002" 
+    environment:
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+      - SERVICE_NAME=hiveserver2
+      - HIVE_VERSION=4.0.1
+    depends_on:
+      - hive-metastore
+      - hbase
+    restart: unless-stopped
+
+volumes:
+  hbase_data:
+  hbase_logs:
+
