@@ -23,7 +23,7 @@ services:
     image: apache/hive:4.0.1
     container_name: hive-metastore
     ports:
-      - "9083:9083"  # Porta para o Metastore
+      - "9083:9083"  
     environment:
       - HIVE_METASTORE_URI=thrift://hive-metastore:9083
       - HIVE_VERSION=4.0.1
