@@ -20,6 +20,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     mariadb-server \
     mariadb-client \
+    php \
+    php-mysql \
+    php-cli \
+    php-curl \
+    php-xml \
+    php-mbstring \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://downloads.apache.org/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz -O /tmp/hadoop.tar.gz && \
@@ -48,12 +54,12 @@ RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
 
 RUN mysqld_safe & \
     sleep 15 && \
-    mysql -e "CREATE DATABASE hive;" && \
-    mysql -e "CREATE USER 'hive'@'%' IDENTIFIED BY 'hive';" && \
-    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'hive'@'%';" && \
+    mysql -e "CREATE DATABASE root;" && \
+    mysql -e "CREATE USER 'root'@'%' IDENTIFIED BY 'root';" && \
+    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';" && \
     mysql -e "FLUSH PRIVILEGES;" && \
     mysqladmin shutdown
 
-EXPOSE 3306 50070 8080 10000
+EXPOSE 3306 50070 8080 10000 9000
 
 CMD mysqld_safe & bash

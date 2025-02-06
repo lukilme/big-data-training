@@ -39,15 +39,15 @@ RUN wget https://dlcdn.apache.org/hbase/2.6.1/hbase-2.6.1-bin.tar.gz \
 ENV HBASE_HOME=/usr/local/hbase
 ENV PATH=$HBASE_HOME/bin:$PATH
 
-ENV SPARK_VERSION=3.5.3
-RUN wget https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3.tgz \
+ENV SPARK_VERSION=3.5.4
+RUN wget https://dlcdn.apache.org/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop3.tgz \
     && tar -xzf spark-$SPARK_VERSION-bin-hadoop3.tgz -C /usr/local/ \
     && rm spark-$SPARK_VERSION-bin-hadoop3.tgz \
     && mv /usr/local/spark-$SPARK_VERSION-bin-hadoop3 /usr/local/spark
 ENV SPARK_HOME=/usr/local/spark
 ENV PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 
-ENV ZOOKEEPER_VERSION=3.8.2
+ENV ZOOKEEPER_VERSION=3.8.4
 RUN wget https://dlcdn.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/apache-zookeeper-$ZOOKEEPER_VERSION-bin.tar.gz \
     && tar -xzf apache-zookeeper-$ZOOKEEPER_VERSION-bin.tar.gz -C /usr/local/ \
     && rm apache-zookeeper-$ZOOKEEPER_VERSION-bin.tar.gz \
