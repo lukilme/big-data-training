@@ -1,82 +1,82 @@
-FROM ubuntu:20.04
+FROM openjdk:8-jdk
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV HADOOP_VERSION=3.3.6 \
+    HIVE_VERSION=4.0.1 \
+    SQOOP_VERSION=1.4.7 \
+    SPARK_VERSION=3.5.4 \
+    FLUME_VERSION=1.11.0 \
+    HADOOP_HOME=/opt/hadoop \
+    HIVE_HOME=/opt/hive \
+    SQOOP_HOME=/opt/sqoop \
+    SPARK_HOME=/opt/spark \
+    FLUME_HOME=/opt/flume \
+    PATH=$HADOOP_HOME/bin:$HIVE_HOME/bin:$SQOOP_HOME/bin:$SPARK_HOME/bin:$FLUME_HOME/bin:$PATH
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
-    netcat \
-    mysql-server \
-    python3 \
-    python3-pip \
+    curl \
+    tar \
+    ssh \
     openssh-server \
-    sudo \
+    net-tools \
+    procps \
+    rsync \
     vim \
+    mariadb-server \
+    mariadb-client \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y openjdk-8-jdk
+# Instalação do Hadoop
+RUN wget https://downloads.apache.org/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz -O /tmp/hadoop.tar.gz && \
+    tar -xzf /tmp/hadoop.tar.gz -C /opt && \
+    mv /opt/hadoop-$HADOOP_VERSION $HADOOP_HOME && \
+    rm -rf /tmp/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-ENV HADOOP_VERSION=3.3.6
-ENV HIVE_VERSION=3.1.3
-ENV FLUME_VERSION=1.11.0
-ENV SPARK_VERSION=3.3.2
-ENV HADOOP_HOME=/opt/hadoop
-ENV HIVE_HOME=/opt/hive
-ENV FLUME_HOME=/opt/flume
-ENV SPARK_HOME=/opt/spark
-ENV PATH="${PATH}:${HADOOP_HOME}/bin:${HIVE_HOME}/bin:${FLUME_HOME}/bin:${SPARK_HOME}/bin"
+# Instalação do Hive
+RUN wget https://downloads.apache.org/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz -O /tmp/hive.tar.gz && \
+    tar -xzf /tmp/hive.tar.gz -C /opt && \
+    mv /opt/apache-hive-$HIVE_VERSION-bin $HIVE_HOME && \
+    rm -rf /tmp/*
 
-RUN wget -q https://archive.apache.org/dist/hadoop/core/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
-    && tar -xzf hadoop-${HADOOP_VERSION}.tar.gz -C /opt/ \
-    && ln -s /opt/hadoop-${HADOOP_VERSION} ${HADOOP_HOME} \
-    && rm hadoop-${HADOOP_VERSION}.tar.gz
+# Instalação do Sqoop
+RUN wget https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz -O /tmp/sqoop.tar.gz && \
+    tar -xzf /tmp/sqoop.tar.gz -C /opt && \
+    mv /opt/sqoop-1.4.7.bin__hadoop-2.6.0 $SQOOP_HOME && \
+    rm -rf /tmp/*
 
-RUN wget -q https://downloads.apache.org/hive/hive-${HIVE_VERSION}/apache-hive-${HIVE_VERSION}-bin.tar.gz \
-    && tar -xzf apache-hive-${HIVE_VERSION}-bin.tar.gz -C /opt/ \
-    && ln -s /opt/apache-hive-${HIVE_VERSION}-bin ${HIVE_HOME} \
-    && rm apache-hive-${HIVE_VERSION}-bin.tar.gz
+# Instalação do Spark
+RUN wget https://downloads.apache.org/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop3.tgz -O /tmp/spark.tgz && \
+    tar -xzf /tmp/spark.tgz -C /opt && \
+    mv /opt/spark-$SPARK_VERSION-bin-hadoop3 $SPARK_HOME && \
+    rm -rf /tmp/*
 
-RUN wget -q https://archive.apache.org/dist/flume/${FLUME_VERSION}/apache-flume-${FLUME_VERSION}-bin.tar.gz \
-    && tar -xzf apache-flume-${FLUME_VERSION}-bin.tar.gz -C /opt/ \
-    && ln -s /opt/apache-flume-${FLUME_VERSION}-bin ${FLUME_HOME} \
-    && rm apache-flume-${FLUME_VERSION}-bin.tar.gz
+# Instalação do Flume
+RUN wget https://downloads.apache.org/flume/$FLUME_VERSION/apache-flume-$FLUME_VERSION-bin.tar.gz -O /tmp/flume.tar.gz && \
+    tar -xzf /tmp/flume.tar.gz -C /opt && \
+    mv /opt/apache-flume-$FLUME_VERSION-bin $FLUME_HOME && \
+    rm -rf /tmp/*
 
-RUN wget -q https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz \
-    && tar -xzf spark-${SPARK_VERSION}-bin-hadoop3.tgz -C /opt/ \
-    && ln -s /opt/spark-${SPARK_VERSION}-bin-hadoop3 ${SPARK_HOME} \
-    && rm spark-${SPARK_VERSION}-bin-hadoop3.tgz
+COPY ./shared/scripts/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
+COPY ./shared/scripts/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+COPY ./shared/scripts/hive-site.xml $HIVE_HOME/conf/hive-site.xml
+COPY ./shared/scripts/sqoop-site.xml $SQOOP_HOME/conf/sqoop-site.xml
 
-COPY config/hadoop/* ${HADOOP_HOME}/etc/hadoop/
+# Configurações comuns
+RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa && \
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys && \
+    chmod 600 ~/.ssh/authorized_keys
 
-RUN mv ${HIVE_HOME}/conf/hive-default.xml.template ${HIVE_HOME}/conf/hive-site.xml
-RUN schematool -initSchema -dbType derby
+RUN mysqld_safe & \
+    sleep 15 && \
+    mysql -e "CREATE DATABASE root;" && \
+    mysql -e "CREATE USER 'root'@'%' IDENTIFIED BY 'root';" && \
+    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';" && \
+    mysql -e "FLUSH PRIVILEGES;" && \
+    mysqladmin shutdown
 
-RUN service mysql start && \
-    mysql -e "CREATE DATABASE retail_db; \
-    CREATE USER 'retail_dba'@'%' IDENTIFIED BY 'cloudera'; \
-    GRANT ALL PRIVILEGES ON retail_db.* TO 'retail_dba'@'%'; \
-    FLUSH PRIVILEGES;"
+COPY ./shared/config/config.sh config.sh
+RUN chmod +x /config.sh
 
-RUN mkdir -p \
-    /opt/gen_logs/logs \
-    /home/cloudera/flumetest \
-    /tmp/nrtcontent \
-    /tmp/spooldir/bb \
-    /tmp/spooldir/dr \
-    /tmp/spooldir2 \
-    /tmp/flume
+EXPOSE 3306 50070 8080 10000 9000 4040 44444
 
-COPY flume-configs/ ${FLUME_HOME}/conf/
-
-COPY *.sh /opt/scripts/
-COPY *.csv /opt/data/
-COPY *.txt /opt/data/
-
-RUN chmod +x /opt/scripts/*.sh
-
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-EXPOSE 3306 8020 8042 8088 8888 9083 10000
-
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/bin/bash"]
