@@ -1,12 +1,8 @@
 #!/bin/bash
-# Atualize a linha do PATH para:
-
-# Cria usuário hadoop
 useradd -m -s /bin/bash hadoop
 echo "hadoop:hadoop" | chpasswd
 service mysql start
 mv /opt/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar /opt/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar.bak
-# Configura hosts
 echo "127.0.0.1 localhost namenode" >> /etc/hosts
 
 cp /shared/scripts/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
@@ -14,7 +10,6 @@ cp /shared/scripts/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 cp /shared/scripts/hive-site.xml $HIVE_HOME/conf/hive-site.xml
 cp /shared/scripts/sqoop-site.xml $SQOOP_HOME/conf/sqoop-site.xml
 
-# Variáveis de ambiente
 cat <<EOF >> /etc/profile
 export HADOOP_HOME=/opt/hadoop
 export HIVE_HOME=/opt/hive
@@ -86,14 +81,12 @@ chmod 600 /home/hadoop/.ssh/id_rsa
 chmod 644 /home/hadoop/.ssh/id_rsa.pub
 chmod 644 /home/hadoop/.ssh/authorized_keys
 
-# Configuração do Hadoop
-su - hadoop -c "hdfs namenode -format -force"  # Força a formatação
+su - hadoop -c "hdfs namenode -format -force" 
 su - hadoop -c "$HADOOP_HOME/sbin/stop-dfs.sh"
 su - hadoop -c "$HADOOP_HOME/sbin/stop-yarn.sh"
 su - hadoop -c "$HADOOP_HOME/sbin/start-dfs.sh"
 su - hadoop -c "$HADOOP_HOME/sbin/start-yarn.sh"
 sleep 5
-# Cria diretórios HDFS essenciais
 su - hadoop -c "hdfs dfs -mkdir -p /tmp /user/hive/warehouse"
 su - hadoop -c "hdfs dfs -chmod -R 1777 /tmp"
 su - hadoop -c "hdfs dfs -chmod -R 775 /user/hive/warehouse"
@@ -111,16 +104,12 @@ chown hadoop:hadoop /var/log/hive-metastore.log /var/log/flume.log
 su - hadoop -c "schematool -initSchema -dbType derby --verbose"
 su - hadoop -c "hive --service metastore > /var/log/hive-metastore.log 2>&1 &"
 
-# Inicialização do Spark History Server
 su - hadoop -c "$SPARK_HOME/sbin/start-history-server.sh"
 
-# Inicialização do Flume Agent
 su - hadoop -c "flume-ng agent -n agent -f /opt/flume/conf/flume.conf > /var/log/flume.log 2>&1 &"
 
-# Inicia serviços básicos
 service ssh start
 service mysql start
 mysqld_safe &
 
-# Mantém o container ativo
 tail -f /dev/null &

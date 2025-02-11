@@ -1,16 +1,12 @@
-# Configura variáveis de ambiente para o Hive
 su - hadoop -c "export HIVE_HOME=/opt/hive"
 su - hadoop -c "export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HIVE_HOME/lib/*"
 cp /shared/scripts/hive-site.xml $HIVE_HOME/conf/hive-site.xml
 
-# Cria e ajusta permissões dos arquivos de log
 touch /var/log/hive-metastore.log /var/log/hiveserver2.log /var/log/flume.log
 chown hadoop:hadoop /var/log/hive-metastore.log /var/log/hiveserver2.log /var/log/flume.log
 
-# Inicializa o esquema do Hive Metastore no MySQL
 su - hadoop -c "schematool -initSchema -dbType mysql --verbose"
 
-# Inicia o Hive Metastore
 su - hadoop -c "hive --service metastore > /var/log/hive-metastore.log 2>&1 &"
 su - hadoop -c "hive --service hiveserver2 > /var/log/hiveserver2.log 2>&1 &"
 
