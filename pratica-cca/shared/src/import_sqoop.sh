@@ -13,14 +13,16 @@
 #   --delete-target-dir \
 #   -m 1
 
-hdfs dfs -mkdir -p /user/shared/src/departments
-hdfs dfs -chmod -R 777 /user/shared/src/
-hdfs dfs -chmod 777 /tmp
+/opt/hadoop/bin/hdfs dfs -mkdir -p /user/shared/src/departments
+/opt/hadoop/bin/hdfs dfs -mkdir -p /temp
+/opt/hadoop/bin/hdfs dfs -chmod -R 777 /user/shared/src/
+/opt/hadoop/bin/hdfs dfs -chmod 777 /tmp
 
-sqoop import \
+
+/opt/sqoop/bin/sqoop import \
   --connect jdbc:mysql://localhost:3306/retail_db \
-  --username user \
-  --password password \
+  --username root \
+  --password root \
   --table departments \
   --target-dir hdfs:///user/shared/src/departments \
   --split-by id \
