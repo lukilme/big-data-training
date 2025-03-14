@@ -18,15 +18,43 @@
         shell: /bin/bash
         create_home: yes
         state: present
+    - name: Atualizar cache de pacotes (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == 'Debian'
+
+    - name: Instalar MySQL/MariaDB
+      package:
+        name: "{{
+          'mariadb-server' if ansible_os_family == 'Debian'
+          else 'mariadb-server' if ansible_os_family == 'RedHat'
+          else 'mysql-server'
+        }}"
+        state: present
+
+    - name: Iniciar serviço MySQL/MariaDB
+      service:
+        name: "{{
+          'mariadb' if ansible_os_family == 'Debian'
+          else 'mariadb' if ansible_os_family == 'RedHat'
+          else 'mysqld'
+        }}"
+        state: started
+        enabled: yes
 
     - name: Definir senha do usuário Hadoop
       user:
         name: "{{ hadoop_user }}"
         password: "{{ 'hadoop' | password_hash('sha512') }}"
 
-    - name: Iniciar serviço MySQL
+    - name: Iniciar serviço MySQL/MariaDB
       service:
-        name: mysql
+        name: "{{
+          'mariadb' if ansible_os_family == 'Debian'
+          else 'mysqld' if ansible_os_family == 'RedHat'
+          else 'mysql'
+        }}"
         state: started
         enabled: yes
 
@@ -34,31 +62,6 @@
       shell: "mv {{ hadoop_home }}/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar {{ hadoop_home }}/share/hadoop/common/"
       args:
         creates: "{{ hadoop_home }}/share/hadoop/common/slf4j-reload4j-1.7.36.jar"
-
-    - name: Configurar /etc/hosts
-      lineinfile:
-        path: /etc/hosts
-        line: "127.0.0.1 localhost namenode"
-        state: present
-
-    - name: Copiar arquivos de configuração
-      copy:
-        src: "/shared/scripts/{{ item }}"
-        dest: "{{ lookup('vars', item|replace('-','_') + '_home') }}/etc/hadoop/{{ item }}"
-      loop:
-        - core-site.xml
-        - hdfs-site.xml
-      when: item in ['core-site.xml', 'hdfs-site.xml']
-
-    - name: Copiar hive-site.xml
-      copy:
-        src: "/shared/scripts/hive-site.xml"
-        dest: "{{ hive_home }}/conf/hive-site.xml"
-
-    - name: Copiar sqoop-site.xml
-      copy:
-        src: "/shared/scripts/sqoop-site.xml"
-        dest: "{{ sqoop_home }}/conf/sqoop-site.xml"
 
     - name: Configurar variáveis de ambiente
       blockinfile:

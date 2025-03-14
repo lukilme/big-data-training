@@ -2,7 +2,7 @@
 useradd -m -s /bin/bash hadoop
 echo "hadoop:hadoop" | chpasswd
 service mysql start
-mv /opt/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar /opt/hadoop/share/hadoop/common/
+mv /opt/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar /opt/hadoop/share/hadoop/common/lib/slf4j-reload4j-1.7.36.jar.bak
 echo "127.0.0.1 localhost namenode" >> /etc/hosts
 
 cp /shared/scripts/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
@@ -41,10 +41,7 @@ export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:/tmp/sqoop-classes
 export CLASSPATH=$HIVE_HOME/lib/*:$CLASSPATH
 export CLASSPATH=$HIVE_HOME/lib/hive-beeline-4.0.1.jar:$CLASSPATH
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HIVE_HOME/lib/*
-export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:/opt/sqoop/sqoop-1.4.7.jar
-
 EOL
-
 
 echo "JAVA_HOME is set to: $JAVA_HOME"
 
@@ -89,7 +86,7 @@ su - hadoop -c "$HADOOP_HOME/sbin/stop-dfs.sh"
 su - hadoop -c "$HADOOP_HOME/sbin/stop-yarn.sh"
 su - hadoop -c "$HADOOP_HOME/sbin/start-dfs.sh"
 su - hadoop -c "$HADOOP_HOME/sbin/start-yarn.sh"
-sleep 10
+sleep 5
 su - hadoop -c "hdfs dfs -mkdir -p /tmp /user/hive/warehouse"
 su - hadoop -c "hdfs dfs -chmod -R 1777 /tmp"
 su - hadoop -c "hdfs dfs -chmod -R 775 /user/hive/warehouse"

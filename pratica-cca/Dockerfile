@@ -1,9 +1,9 @@
 FROM openjdk:8-jdk
 
 ENV HADOOP_VERSION=3.3.6 \
-    HIVE_VERSION=4.0.1 \
+    HIVE_VERSION=3.1.3 \
     SQOOP_VERSION=1.4.7 \
-    SPARK_VERSION=3.5.4 \
+    SPARK_VERSION=3.5.5 \
     FLUME_VERSION=1.11.0 \
     HADOOP_HOME=/opt/hadoop \
     HIVE_HOME=/opt/hive \
@@ -22,24 +22,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
     rsync \
     vim \
-    python3 \
-    python3-pip \
-    sshpass \
     mariadb-server \
     mariadb-client \
     && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install ansible
-
-COPY hadoop_setup.yaml /root/hadoop_setup.yaml
-COPY inventory.ini /root/inventory.ini
 
 RUN wget https://downloads.apache.org/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz -O /tmp/hadoop.tar.gz && \
     tar -xzf /tmp/hadoop.tar.gz -C /opt && \
     mv /opt/hadoop-$HADOOP_VERSION $HADOOP_HOME && \
     rm -rf /tmp/*
 
-RUN wget https://downloads.apache.org/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz -O /tmp/hive.tar.gz && \
+RUN wget https://archive.apache.org/dist/hive/hive-3.1.3/apache-hive-3.1.3-bin.tar.gz -O /tmp/hive.tar.gz && \
     tar -xzf /tmp/hive.tar.gz -C /opt && \
     mv /opt/apache-hive-$HIVE_VERSION-bin $HIVE_HOME && \
     rm -rf /tmp/*
