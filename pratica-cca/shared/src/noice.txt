@@ -1,1 +1,4 @@
-root@4351c0084173:/shared/src/cca/cca3# /opt/spark/bin/spark-submit --class example.Main --master local[*] target/scala-2.13/cca3_2.13-0.1.0-SNAPSHOT.jar 
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk install sbt
+root@4351c0084173:/shared/src/cca/cca3# /opt/spark/bin/spark-submit --class example.Main --master local[*] target/scala-2.13/cca3_2.13-0.1.0-SNAPSHOT.jar
