@@ -10,3 +10,6 @@
 *.hql.sql linguist-detectable=true
 *.hql.sql linguist-language=hiveql
 *.hql.sql text
+*.hql linguist-detectable=true
+*.hql linguist-language=hiveql
+*.hql text
